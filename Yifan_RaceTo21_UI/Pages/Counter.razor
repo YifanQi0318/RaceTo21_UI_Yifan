@@ -12,9 +12,26 @@
     h2 {
         color: #D2691E;
     }
+    h5 {
+        font-size: 1.5em;
+        font-weight: bold;
+    }
 
     #title-container {
         text-align: center;
+    }
+
+    .player-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .avatar {
+        margin-right: 10px;
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 50%;
     }
 
     #subtitle {
@@ -66,14 +83,15 @@
         @foreach (var player in Game.players)
         {
             <div class="card">
-                <div class="card-body">
+                <div class="player-info">
+                    <img src="https://i.pinimg.com/564x/03/21/ae/0321ae638563362bbbff9b99b5504030.jpg" alt="Avatar" class="avatar">
                     <h5 class="card-title">@player.name</h5>
                     <h6>Point: @player.point</h6>
 
                     <p>Status: @player.status</p>
                     @if (player.status == PlayerStatus.active)
                     {
-                        <p>How many cards you want to draw?</p>
+                        <p>Draw some card:</p>
                         <input type="text" @bind-value="player.NumOfCard" />
                         <div class="text-center">
                            
@@ -82,13 +100,13 @@
                        <button type="button" class="green-button" @onclick="() => Stay(player)">Stay</button>
 
                     }
-                    <p>Hand:</p>
+                    <p>Hand card:</p>
                     @foreach (var card in player.cards)
                     {
                         <img src="@card.ImgUrl" alt="@card.ImgUrl" />
                         <p>@card.displayName</p>
                     }
-                    <p>Player's Score: @player.score</p>
+                   
                 </div>
             </div>
         }
