@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RaceTo21
 {
@@ -9,12 +10,13 @@ namespace RaceTo21
         static public List<Player> players = new List<Player>(); // list of objects containing player data
         static public CardTable cardTable; // object in charge of displaying game information
         static public Deck deck = new Deck(); // deck of cards
+
         static private int currentPlayer = 0; // current player on list
         static public Task nextTask; // keeps track of game state
+
         static private bool cheating = false; // lets you cheat for testing purposes if true
         static private int highScore;//The highest score in this round
-        static private int round;//The number of round players attend.
-
+        static private int round;
         static public void SetUpGame()
         {
             
@@ -28,8 +30,7 @@ namespace RaceTo21
         static public void AddPlayer(string n)
         {
             players.Add(new Player(n));
-            
-        
+                   
         }
 
         /* Figures out what task to do next in game
@@ -50,10 +51,6 @@ namespace RaceTo21
                 {
                     var name = cardTable.GetPlayerName(count);
                     AddPlayer(name); //add player to the list with the name
-                }
-                foreach(var player in players)//give each player 100 point
-                {
-                    player.point = 100;
                 }
                 nextTask = Task.IntroducePlayers;
             }
@@ -118,7 +115,6 @@ namespace RaceTo21
             }
             else if(nextTask == Task.NextRound)//task 5: go to the next round and do some intialize works like shuffling players or showing player' points
             {
-                clearScore();//Set all players' score to 0
                 foreach(var player in players)//remove all players' cards
                 {
                     int Num = player.cards.Count;
@@ -206,7 +202,7 @@ namespace RaceTo21
             return score;
         }
 
-        /*check whether there is any player do not draw cards but in active status
+       /*check whether there is any player do not draw cards but in active status
        * Is called by DoNextTask()
        * player object provide list of players
        * Calls name, status in each player
@@ -315,21 +311,7 @@ namespace RaceTo21
                 {
                     player.ShowPoint();//Show the point this player have
                     player.status = PlayerStatus.active;
-                    if (player.point <= 0)
-                    {
-                        player.status = PlayerStatus.quit;//Set the status of this player to quit
-                        Console.WriteLine(player.name + "out");
-                    }
-                    else if (player.point >= 200)
-                    {
-                        player.status = PlayerStatus.end;//Set the status of this player to be the winner
-                        Console.WriteLine(player.name + "win this game!");
-                    }
-                    if (!cardTable.CountinuePlay(player))// true when the player is quit
-                    {
-                        player.status = PlayerStatus.quit;//set the player status to quit
-                        //players.Remove(player);
-                    }
+                    
                 }
                 
             }
@@ -342,16 +324,16 @@ namespace RaceTo21
      */
         static public void ShufflePlayer()
         {
-            Console.WriteLine("Shuffling Players Positions...");
-
-            Random ran = new Random();//Create a random number
+           
+            Random rng = new Random();
             for (int i = 0; i < players.Count; i++)
             {
                 //Switch the positons of two player
                 Player p1 = players[i];
-                int swapindex = ran.Next(players.Count);
+                int swapindex = rng.Next(players.Count);
                 players[i] = players[swapindex];
                 players[swapindex] = p1;
+                /*players[swapindex] = tmp;*/
             }
         }
 
@@ -367,13 +349,7 @@ namespace RaceTo21
             {
                 return true;
             }
-            foreach (var player in players)
-            {
-                if (player.point >= 135)
-                {
-                    return true;
-                }
-            }
+
             return false;
         }
 
@@ -385,16 +361,19 @@ namespace RaceTo21
      */
         static public Player FindWinner()
         {
-            int highpoint = 0;
-            foreach (var player in players)//Make comparations between players and find out the player with highest score
+            int? highpoint = null;
+            foreach (var player in players)
             {
-                if (player.point > highpoint)
+                if (highpoint == null || player.point > highpoint)
                 {
                     highpoint = player.point;
                 }
             }
-            return players.Find(player => player.point == highpoint);
+            var winner = players.FirstOrDefault(player => player.point == highpoint);
+            return winner;
         }
+
+      
 
     }
 }
