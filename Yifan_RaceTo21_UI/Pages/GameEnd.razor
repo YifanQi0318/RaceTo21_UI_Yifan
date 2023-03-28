@@ -3,30 +3,82 @@
 @inject IJSRuntime JSRuntime
 
 @using RaceTo21
-<h2>The winner in last round is: </h2>
-@foreach (var player in Game.players) // Loops through all players in the Game.players list
-{
-    if (player.status == PlayerStatus.win) // If the player's status is "win"
-    {
-        <h2>@player.name</h2>
-        // Display the player's name in an H2 element
+
+<style>
+    h1 {
+        color: #FF7F50;
+        text-align: center;
     }
-}
+
+    h2 {
+        color: #D2691E;
+        text-align: center;
+    }
+
+    #title-container {
+        text-align: center;
+    }
+
+    #subtitle {
+        text-align: right;
+    }
+
+        #subtitle h2 {
+            font-size: 16px;
+        }
+
+    .my-button {
+        background-color: #008B8B;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        .my-button:hover, .my-button.hover {
+            background-color: #00FFFF;
+        }
+
+    .player-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .avatar {
+        margin-right: 10px;
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+</style>
+
+<h1>Winner </h1>
+@foreach (var player in Game.players) 
+
+    if (player.status == PlayerStatus.win) 
+    {
+       
+                        <img src="https://i.pinimg.com/564x/03/21/ae/0321ae638563362bbbff9b99b5504030.jpg" alt="Default Avatar" class="avatar">
+        <h2>@player.name</h2>
+       
+    }
+
 <h3>Ready for next round? </h3>
 <form>
-    @foreach (var player in Game.players) // Loops through all players in the Game.players list
+    @foreach (var player in Game.players) 
     {
         <div class="form-group">
             <label for="@($"player{Game.players.IndexOf(player)}")">Player: @player.name</label>
-            <p>Point: @player.point</p>
             @if (player.status != PlayerStatus.quit) // If the player's status is not "quit"
             {
                 <div>
-                    <button type="button" class="btn btn-success"
+                    <button type="button" class="my-button"
                     @onclick="() => UpdatePlayerStatus(player, PlayerStatus.active)">
                         Ready
                     </button>
-                    <button type="button" class="btn btn-danger"
+                    <button type="button" class="my-button"
                     @onclick="() => UpdatePlayerStatus(player, PlayerStatus.quit)">
                         Quit
                     </button>
@@ -37,36 +89,24 @@
     @if (Game.players.Count(p => p.status == PlayerStatus.active) == 0)
     {
         <button type="button" class="btn btn-primary" @onclick="StartNewRound" disabled>Start New Round</button>
-    }// Displays a disabled "Start New Round" button
-    else
+    }
     {
         <button type="button" class="btn btn-primary" @onclick="StartNewRound">Start New Round</button>
-        // Displays an enabled "Start New Round" button
-    }
+       
 </form>
 
 @code {
     public void UpdatePlayerStatus(Player player, PlayerStatus status) // Updates a player's status
     {
-        player.status = status; // Sets the player's status to the new status
-        if (status == PlayerStatus.quit) // If the new status is "quit"
+        player.status = status; // Remove unneeded players
+        if (status == PlayerStatus.quit)
         {
-            Game.players.Remove(player); // Remove the player from the Game.players list
+            Game.players.Remove(player);
         }
     }
 
-    public void StartNewRound() // Starts a new round
+    public void StartNewRound()
     {
-        // Remove players who have quit
-        Game.players.RemoveAll(p => p.status == PlayerStatus.quit); // Remove all players whose status is "quit"
-
-        // Reset game status for active players
-        foreach (var player in Game.players.Where(p => p.status == PlayerStatus.active)) // Loops through all active players
-        {
-            player.score = 0; // Resets the player's score to 0
-            player.cards.Clear(); // Clears the player's cards list
-            player.status = PlayerStatus.active; // Sets the player's status to "active"
-        }
 
         // Start new round
         NavigationManager.NavigateTo("/Game"); // Navigates to the "/Game" page
