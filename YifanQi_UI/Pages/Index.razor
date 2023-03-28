@@ -1,0 +1,52 @@
+﻿@page "/"
+@inject NavigationManager NavigationManager
+@using RaceTo21
+
+<PageTitle>Race To 21</PageTitle>
+
+<h1>Race To 21 APEX Champion</h1>
+
+
+<button @onclick="@(() => NavigationManager.NavigateTo("/Game"))">Let's Start</button>
+
+<h2>Input your name:</h2>
+
+<div>
+    <input type="text" @bind-value="newPlayerName" />
+    <button type="button" @onclick="AddNewPlayer">Join</button>
+</div>
+
+@if (numberOfPlayers > 0)//Loop Check
+{
+    <form>
+   
+        @for (int i = 0; i < numberOfPlayers; i++)
+        {
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Player @(i+1)</h5>
+       
+                </div>
+            </div>
+        }
+    </form>
+}
+
+
+@code {
+
+    public string newPlayerName;
+
+    public int numberOfPlayers = 0;
+
+    public void AddNewPlayer()
+    {
+        Game.AddPlayer(newPlayerName);
+
+        numberOfPlayers++;//Add number
+
+
+    }
+
+   
+}
