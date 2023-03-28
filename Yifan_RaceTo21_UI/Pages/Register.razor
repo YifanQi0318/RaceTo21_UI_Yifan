@@ -1,0 +1,134 @@
+﻿@page "/Register"
+@inject NavigationManager NavigationManager
+@using RaceTo21
+
+<PageTitle>Race To 21/Register</PageTitle>
+
+<style>
+    h1 {
+        color: #FF7F50;
+    }
+    h2 {
+        color: #D2691E;
+    }
+
+    #title-container {
+        text-align: center;
+    }
+
+    #subtitle {
+        text-align: middle;
+    }
+
+        #subtitle h2 {
+            font-size: 16px;
+        }
+
+    .my-button {
+        background-color: #A52A2A;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        .my-button:hover, .my-button.hover {
+            background-color: #DC143C;
+        }
+
+    .player-info {
+        display: flex;
+        align-items: center;
+    }
+
+     .card-text {
+    margin-left: 10px;
+    }
+  
+     .card-title {
+    font-size: 24px;
+    margin: 0;
+    }
+
+    .avatar {
+        margin-right: 10px;
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+</style>
+
+<div id="title-container">
+    <h1>Player Register</h1>
+</div>
+<div id="subtitle">
+    <h2>Please input players' name:</h2>
+</div>
+
+
+
+
+<div>
+    <input type="text" @bind-value="newPlayerName" />
+    <button type="button" @onclick="AddNewPlayer">Join</button>
+</div>
+
+
+
+@if (numberOfPlayers > 0)//Loop Check player/Display their names
+{
+    <form>
+   
+        @for (int i = 0; i < numberOfPlayers; i++)
+        {
+            <div class="card">
+                <div class="card-body">
+                    <div class="player-info">
+                        <img src="https://i.pinimg.com/564x/03/21/ae/0321ae638563362bbbff9b99b5504030.jpg" alt="Default Avatar" class="avatar">
+                        <div class="card-text">
+                            <h5 class="card-title">@Game.players[i].name</h5>
+                            <p class="player-number">Player @(i + 1)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </form>
+}
+
+<div class="d-flex justify-content-between">
+    <button class="my-button @((isHovering ? "hover" : ""))" @onclick="@(() => NavigationManager.NavigateTo("/"))"
+            @onmouseover="() => isHovering = true"
+            @onmouseout="() => isHovering = false">
+        Back
+    </button>
+    <button class="my-button @((isHovering ? "hover" : ""))" @onclick="@(() => NavigationManager.NavigateTo("/Game"))"
+            @onmouseover="() => isHovering = true"
+            @onmouseout="() => isHovering = false">
+        Continue
+    </button>
+</div>
+
+
+@code {
+    private bool isHovering = false; //Control button's color when mouse entered
+
+
+    public string newPlayerName;
+    public int numberOfPlayers = 0;
+    public void AddNewPlayer()//This function is to add new player to game
+    {
+        Game.AddPlayer(newPlayerName);//Call Game, and then add new player to list
+
+        numberOfPlayers++;//Add number
+
+        newPlayerName = string.Empty;
+
+        Game.SetUpGame();
+
+    }
+
+   
+}

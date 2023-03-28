@@ -1,0 +1,65 @@
+﻿@page "/"
+@inject NavigationManager NavigationManager
+@using RaceTo21
+
+<PageTitle>Race To 21</PageTitle>
+
+<style>
+    h1 {
+        color: #FF7F50;
+    }
+    h2 {
+        color: #D2691E;
+    }
+
+    #title-container {
+        text-align: center;
+    }
+
+    #subtitle {
+        text-align: right;
+    }
+
+        #subtitle h2 {
+            font-size: 16px;
+        }
+
+    .my-button {
+        background-color: #008B8B;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        .my-button:hover, .my-button.hover {
+            background-color: #00FFFF;
+        }
+</style>
+
+<div id="title-container">
+    <h1>Race To 21 APEX Champion</h1>
+</div>
+<div id="subtitle">
+    <h2>Created by Yifan Qi</h2>
+</div>
+
+<div class="text-center">
+    <button class="my-button @((isHovering ? "hover" : ""))" @onclick="@(() => NavigationManager.NavigateTo("/Register"))"
+            @onmouseover="() => isHovering = true"
+            @onmouseout="() => isHovering = false">♠Let's Start♠</button>
+</div>
+
+
+
+
+
+
+@code {
+    private bool isHovering = false; //Control button's color when mouse entered
+    
+
+ 
+   
+}

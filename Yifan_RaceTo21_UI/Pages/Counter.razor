@@ -1,0 +1,185 @@
+﻿@page "/Game"
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@using RaceTo21
+
+<PageTitle>Race To 21/Register/Game</PageTitle>
+
+<style>
+    h1 {
+        color: #FF7F50;
+    }
+    h2 {
+        color: #D2691E;
+    }
+
+    #title-container {
+        text-align: center;
+    }
+
+    #subtitle {
+        text-align: right;
+    }
+
+        #subtitle h2 {
+            font-size: 16px;
+        }
+
+    .my-button {
+        background-color: #008B8B;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        .my-button:hover, .my-button.hover {
+            background-color: #00FFFF;
+        }
+
+    .red-button {
+        background-color: #FF8C00;
+        color: white;
+    }
+
+    .green-button {
+        background-color: #006400;
+        color: white;
+    }
+    body {
+        background-image: url("https://i.pinimg.com/564x/24/65/19/24651955c72e896dcf08173589fba6a2.jpg");
+        background-size: cover;
+        background-position: center center;
+        background-attachment: fixed;
+    }
+</style>
+
+<div id="title-container">
+    <h1>Let's start</h1>
+</div>
+
+
+@if (Game.players.Count > 0)
+{
+    <form>
+        @foreach (var player in Game.players)
+        {
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">@player.name</h5>
+                    <h6>Point: @player.point</h6>
+
+                    <p>Status: @player.status</p>
+                    @if (player.status == PlayerStatus.active)
+                    {
+                        <p>How many cards you want to draw?</p>
+                        <input type="text" @bind-value="player.NumOfCard" />
+                        <div class="text-center">
+                           
+</div>
+                       <button type="button" class="red-button" @onclick="() => DrawCards(player)">Draw</button>
+                       <button type="button" class="green-button" @onclick="() => Stay(player)">Stay</button>
+
+                    }
+                    <p>Hand:</p>
+                    @foreach (var card in player.cards)
+                    {
+                        <img src="@card.ImgUrl" alt="@card.ImgUrl" />
+                        <p>@card.displayName</p>
+                    }
+                    <p>Player's Score: @player.score</p>
+                </div>
+            </div>
+        }
+
+    </form>
+}
+
+<div class="d-flex justify-content-between">
+    <button class="my-button @((isHovering ? "hover" : ""))" @onclick="@(() => NavigationManager.NavigateTo("/Register"))"
+            @onmouseover="() => isHovering = true"
+            @onmouseout="() => isHovering = false">
+        Back
+    </button>
+</div>
+
+@code {
+    private bool isHovering = false; //Control button's color when mouse entered
+
+    public void DrawCards(Player player)
+    {
+        int numOfCards = player.NumOfCard;
+        for (int i = 0; i < numOfCards; i++)
+        {
+            Card card = Game.deck.DealTopCard();//get the last card in the deck
+
+            player.cards.Add(card);//add that card to player's hand
+        }
+        player.score = Game.ScoreHand(player);
+        if (player.score > 21)
+        {
+            player.status = PlayerStatus.bust;
+            CheckWinners();
+        }
+        else if (player.score == 21)
+        {
+            player.status = PlayerStatus.win;
+            player.point += player.score;
+            JSRuntime.InvokeVoidAsync("alert", "Player " + player.name + " has won the game!");
+            NavigationManager.NavigateTo("/TakeARest"); //navigate to the next page
+        }
+        else
+        {
+            CheckWinners();
+        }
+    }
+
+    public void Stay(Player player)
+    {
+        player.status = PlayerStatus.stay;
+        CheckWinners();
+    }
+
+    private void CheckWinners()
+    {
+        bool allBust = true;
+        bool allStay = true;
+        Player winner = null;
+
+        foreach (var player in Game.players)
+        {
+            if (player.status == PlayerStatus.active)
+            {
+                allStay = false;
+            }
+
+            if (player.status == PlayerStatus.bust)
+            {
+                continue;
+            }
+
+            if (player.score <= 21)
+            {
+                allBust = false;
+
+                if (winner == null || player.score > winner.score)
+                {
+                    winner = player;
+                }
+            }
+        }
+
+        if (allBust)
+        {
+            JSRuntime.InvokeVoidAsync("alert", "All players have busted! There is no winner.");
+            NavigationManager.NavigateTo("/GameEnd"); //navigate to the next page
+        }
+        else if (allStay)
+        {
+            winner.point += winner.score;
+            JSRuntime.InvokeVoidAsync("alert", "Congratulation! The winner is Player " + (Game.players.IndexOf(winner) + 1) + " with a score of " + winner.score + "!");
+            NavigationManager.NavigateTo("/GameEnd"); //navigate to the next page
+        }
+    }
+}

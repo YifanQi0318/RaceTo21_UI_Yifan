@@ -1,0 +1,74 @@
+﻿@page "/GameEnd"
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+@using RaceTo21
+<h2>The winner in last round is: </h2>
+@foreach (var player in Game.players) // Loops through all players in the Game.players list
+{
+    if (player.status == PlayerStatus.win) // If the player's status is "win"
+    {
+        <h2>@player.name</h2>
+        // Display the player's name in an H2 element
+    }
+}
+<h3>Ready for next round? </h3>
+<form>
+    @foreach (var player in Game.players) // Loops through all players in the Game.players list
+    {
+        <div class="form-group">
+            <label for="@($"player{Game.players.IndexOf(player)}")">Player: @player.name</label>
+            <p>Point: @player.point</p>
+            @if (player.status != PlayerStatus.quit) // If the player's status is not "quit"
+            {
+                <div>
+                    <button type="button" class="btn btn-success"
+                    @onclick="() => UpdatePlayerStatus(player, PlayerStatus.active)">
+                        Ready
+                    </button>
+                    <button type="button" class="btn btn-danger"
+                    @onclick="() => UpdatePlayerStatus(player, PlayerStatus.quit)">
+                        Quit
+                    </button>
+                </div>
+            }
+        </div>
+    }
+    @if (Game.players.Count(p => p.status == PlayerStatus.active) == 0)
+    {
+        <button type="button" class="btn btn-primary" @onclick="StartNewRound" disabled>Start New Round</button>
+    }// Displays a disabled "Start New Round" button
+    else
+    {
+        <button type="button" class="btn btn-primary" @onclick="StartNewRound">Start New Round</button>
+        // Displays an enabled "Start New Round" button
+    }
+</form>
+
+@code {
+    public void UpdatePlayerStatus(Player player, PlayerStatus status) // Updates a player's status
+    {
+        player.status = status; // Sets the player's status to the new status
+        if (status == PlayerStatus.quit) // If the new status is "quit"
+        {
+            Game.players.Remove(player); // Remove the player from the Game.players list
+        }
+    }
+
+    public void StartNewRound() // Starts a new round
+    {
+        // Remove players who have quit
+        Game.players.RemoveAll(p => p.status == PlayerStatus.quit); // Remove all players whose status is "quit"
+
+        // Reset game status for active players
+        foreach (var player in Game.players.Where(p => p.status == PlayerStatus.active)) // Loops through all active players
+        {
+            player.score = 0; // Resets the player's score to 0
+            player.cards.Clear(); // Clears the player's cards list
+            player.status = PlayerStatus.active; // Sets the player's status to "active"
+        }
+
+        // Start new round
+        NavigationManager.NavigateTo("/Game"); // Navigates to the "/Game" page
+    }
+}
